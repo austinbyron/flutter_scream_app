@@ -39,6 +39,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter/src/foundation/constants.dart';
 
 void main() {
+  //assetsAudioPlayer.setVolume(0.1);
   runApp(MyApp());
 }
 
@@ -70,6 +71,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
+final AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -89,29 +92,45 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-  AudioPlayer audioPlayer;
-
+  
+  
+  double _vol = 0.1;
   @override
   void initState() {
     super.initState();
-    AssetsAudioPlayer.newPlayer().open(
+    assetsAudioPlayer.setVolume(_getCurrentVolume());
+    assetsAudioPlayer.open(
       Audio("assets/sounds/AAAGH1.mp3"),
       autoStart: true,
       showNotification: true,
-      loop: true
+      loop: true,
+      volume: _getCurrentVolume(),
     );
+    Timer.periodic(Duration(microseconds: 2925714), (Timer t) => _getCurrentVolume());
     
   }
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  
+
+  double _getCurrentVolume()  {
+    if (this.mounted) {
+      if (_vol < 1.0) {
+        setState(() {
+          _vol = min(_vol + 0.1, 1.0);
+        });
+        
+        
+        
+      }
+      else if (_vol == 1.0) {
+        setState(() {
+          _vol = 0.1;
+        });
+        
+      }
+      assetsAudioPlayer.setVolume(_vol);
+    }
+    return _vol;
+    
   }
 
   @override
@@ -151,6 +170,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'AAAAAGHHHHHHH',
             ),
+
+      
             
           ],
         ),
